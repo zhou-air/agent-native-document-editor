@@ -1,0 +1,11 @@
+{
+  "sections": 100,
+  "blocks": 5000,
+  "createMs": 278,
+  "singleBlockCommitMs": 111,
+  "reopenMs": 245,
+  "changedBlocks": 1,
+  "projectBytes": 3422434,
+  "platform": "linux",
+  "node": "v24.19.0"
+}

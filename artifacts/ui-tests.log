@@ -1,0 +1,32 @@
+
+> agent-document@0.1.0 test:ui
+> node tests/ui.test.js
+
+PASS UI imports DOCX and builds 3-level chapter tree
+PASS Real MCP SDK client initialize + tools/list
+PASS Human paragraph edit changes only selected block, ID stable
+PASS Undo/redo retains original block ID
+PASS Copy creates new UUID and undo restores original identity
+PASS Block move + undo preserves UUID
+PASS Cross-section move undo/redo preserves block identity
+PASS Split/join/undo identity rules exercised
+PASS MCP sentence replacement refreshes visible UI
+PASS MCP stale write rejected through protocol
+PASS MCP read/insert/update/delete specified block
+PASS Two concurrent MCP writes: exactly one winner
+PASS Dirty human block + MCP another block: both edits survive in UI and disk
+PASS Same-block conflict: explicit banner, local input retained, winner not overwritten
+PASS Merged table + images including table image render
+PASS Table cell editing and insert row/column with undo
+PASS Visual table merge/split and delete row/column buttons
+PASS Image insertion saves managed local asset
+PASS Editable styles.json persisted to disk
+PASS MCP write_section nodes retain supplied stable IDs
+PASS MCP structured export produces ZIP
+PASS Full service + browser restart restores content, order, IDs and styles
+PASS No browser page errors
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

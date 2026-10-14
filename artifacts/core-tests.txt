@@ -1,0 +1,30 @@
+
+> agent-document@0.1.0 test
+> node --test tests/core.test.js
+
+✔ DOCX: headings, inherited heading style, numbered body not heading, automatic heading 7/8 (1.293274ms)
+✔ DOCX: gridSpan + vMerge logical grid matches independent oracle; multi-paragraph merged cell (0.4435ms)
+✔ DOCX: inline emphasis, explicit bold false, separate duplicate paragraphs (0.21822ms)
+✔ DOCX: image same name/different bytes, repeated reference and table image (0.13945ms)
+✔ DOCX: styles definitions, inheritance, overrides, captions and page settings (0.151039ms)
+✔ Markdown roundtrip handles simple tables, list text, rich text and images (25.452154ms)
+✔ Edit one block preserves all other blocks and IDs; restart and move preserve identity (73.067362ms)
+✔ Replace exact unique text across marks; zero/multiple matches reject without mutation (30.688493ms)
+✔ Atomic transaction rejects stale revision and prevents partial mutations (37.198866ms)
+✔ UI dirty block + MCP different block merge; same-block collision retains persisted winner (44.230406ms)
+✔ Second owner cannot open project and overwrite authoritative store (18.83564ms)
+✔ Export portable package verifies all assets after moving to clean directory, plus selected section (160.143465ms)
+✔ Unsupported Word fields are warned and original bytes are retained (103.87165ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 916.049582
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

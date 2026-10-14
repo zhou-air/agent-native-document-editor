@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "packaged": true,
+  "checks": [
+    "MCP initialized without GUI or service",
+    "open_project automatically launched local service",
+    "headless project_info read succeeded",
+    "zero-match and multi-match replace_text rejected over real MCP protocol"
+  ]
+}

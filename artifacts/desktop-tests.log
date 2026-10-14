@@ -1,0 +1,20 @@
+Desktop process launched
+Desktop window loaded
+Connecting packaged MCP
+Packaged MCP initialized
+{
+  version: '0.1.0',
+  electron: '38.8.6',
+  node: '22.22.0',
+  platform: 'linux',
+  packaged: true,
+  checks: [
+    'packaged Electron launched actual desktop window',
+    'local project restored',
+    'merged table and all 4 images rendered',
+    'styles panel displayed',
+    'packaged Electron Node-mode MCP initialized 13 tools',
+    'MCP edit visible in desktop window'
+  ],
+  status: 'passed'
+}

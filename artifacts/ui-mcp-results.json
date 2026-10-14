@@ -1,0 +1,133 @@
+[
+  {
+    "name": "UI imports DOCX and builds 3-level chapter tree",
+    "status": "passed",
+    "evidence": {
+      "titles": [
+        "前言",
+        "1 项目概述",
+        "1.1 设计依据",
+        "1.1.1 安全设施清单",
+        "7 应急保障",
+        "8 运行管理"
+      ]
+    }
+  },
+  {
+    "name": "Real MCP SDK client initialize + tools/list",
+    "status": "passed",
+    "evidence": {
+      "toolCount": 13
+    }
+  },
+  {
+    "name": "Human paragraph edit changes only selected block, ID stable",
+    "status": "passed",
+    "evidence": {
+      "blockId": "cd405709-d45c-4d82-a62a-d1eea4a39ea8"
+    }
+  },
+  {
+    "name": "Undo/redo retains original block ID",
+    "status": "passed",
+    "evidence": {
+      "blockId": "cd405709-d45c-4d82-a62a-d1eea4a39ea8"
+    }
+  },
+  {
+    "name": "Copy creates new UUID and undo restores original identity",
+    "status": "passed",
+    "evidence": {
+      "original": "cd405709-d45c-4d82-a62a-d1eea4a39ea8",
+      "copy": "3d76dbf5-bd04-47bb-b79b-2de1bd1aadfb"
+    }
+  },
+  {
+    "name": "Block move + undo preserves UUID",
+    "status": "passed",
+    "evidence": {
+      "blockId": "cd405709-d45c-4d82-a62a-d1eea4a39ea8"
+    }
+  },
+  {
+    "name": "Cross-section move undo/redo preserves block identity",
+    "status": "passed",
+    "evidence": {
+      "blockId": "cd405709-d45c-4d82-a62a-d1eea4a39ea8"
+    }
+  },
+  {
+    "name": "Split/join/undo identity rules exercised",
+    "status": "passed",
+    "evidence": {
+      "left": "cd405709-d45c-4d82-a62a-d1eea4a39ea8",
+      "right": "46d3233b-ca77-457e-85b5-5949b2da2ff0"
+    }
+  },
+  {
+    "name": "MCP sentence replacement refreshes visible UI",
+    "status": "passed",
+    "evidence": {
+      "blockId": "cd405709-d45c-4d82-a62a-d1eea4a39ea8"
+    }
+  },
+  {
+    "name": "MCP stale write rejected through protocol",
+    "status": "passed"
+  },
+  {
+    "name": "MCP read/insert/update/delete specified block",
+    "status": "passed"
+  },
+  {
+    "name": "Two concurrent MCP writes: exactly one winner",
+    "status": "passed"
+  },
+  {
+    "name": "Dirty human block + MCP another block: both edits survive in UI and disk",
+    "status": "passed"
+  },
+  {
+    "name": "Same-block conflict: explicit banner, local input retained, winner not overwritten",
+    "status": "passed"
+  },
+  {
+    "name": "Merged table + images including table image render",
+    "status": "passed"
+  },
+  {
+    "name": "Table cell editing and insert row/column with undo",
+    "status": "passed"
+  },
+  {
+    "name": "Visual table merge/split and delete row/column buttons",
+    "status": "passed"
+  },
+  {
+    "name": "Image insertion saves managed local asset",
+    "status": "passed"
+  },
+  {
+    "name": "Editable styles.json persisted to disk",
+    "status": "passed"
+  },
+  {
+    "name": "MCP write_section nodes retain supplied stable IDs",
+    "status": "passed"
+  },
+  {
+    "name": "MCP structured export produces ZIP",
+    "status": "passed",
+    "evidence": {
+      "bytes": 124666
+    }
+  },
+  {
+    "name": "Full service + browser restart restores content, order, IDs and styles",
+    "status": "passed"
+  },
+  {
+    "name": "No browser page errors",
+    "status": "passed"
+  }
+]

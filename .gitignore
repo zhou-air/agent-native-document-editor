@@ -1,6 +1,7 @@
 node_modules/
 /projects/
 /artifacts/
+/examples/濮阳天源样本/
 release/
 .runtime*/
 *.log

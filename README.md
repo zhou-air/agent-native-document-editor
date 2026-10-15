@@ -4,6 +4,8 @@ WinUI 3 原生 Windows 程序，供人类与 AI Agent 共同编辑。Block 保�
 
 ## 使用
 
+直接使用请前往 [GitHub Releases](https://github.com/zhou-air/agent-native-document-editor/releases/latest) 下载 Windows x64 便携 ZIP，完整解压后双击 `AgentDocument.WinUI.exe`。程序包包含运行库，无需安装 Node.js 或 .NET；复制到其他电脑时请保留整个文件夹。
+
 双击 **启动文档工作台.cmd**。可运行程序和全部运行库在 `release/AgentDocument-WinUI-x64`；搬到其他电脑时复制整个文件夹。
 
 - 启动显示应用内“最近项目”首页；点击项目打开，或通过“浏览已有项目”选择外部项目。浏览列表不会迁移旧项目，首次实际打开时才进行备份和迁移。

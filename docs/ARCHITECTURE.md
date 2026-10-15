@@ -1,39 +1,56 @@
-# 架构和基本选型
+# 架构 v2
 
-## 简短研究
+目标是稳定对象身份、局部读写和人类/Agent 协作。页面排版不参与内部内容模型。
 
-- [SiYuan 块 API](https://github.com/siyuan-note/siyuan/blob/master/docs/API.md)：参考稳定块标识与 insert/update/delete/move 的精确定位方式，不复制其数据库或界面。这里的身份使用随机 UUID。
-- [Tiptap UniqueID](https://tiptap.dev/docs/editor/extensions/functionality/uniqueid)、[Table](https://tiptap.dev/docs/editor/extensions/nodes/table)：成熟 ProseMirror 编辑器提供连续输入、历史、列表、表格操作。额外 IdentityRepair 插件解决 table split 克隆属性时残留重复 ID，并与同一历史事务绑定。
-- [Pandoc 手册](https://pandoc.org/MANUAL.html)：适合标准格式转换和 reference-doc，但不是复杂 Word 局部样式与编号的完整无损层。本版不增加运行时 Pandoc 依赖，直接解析 OOXML，导出生成规则供 Agent 使用 Pandoc/python-docx 后处理。
-- [Obsidian 文件导航](https://help.obsidian.md/Plugins/File+explorer)：仅参考清晰的目录导航与内容中心布局。Obsidian 本体不是开源项目，本项目不使用其闭源代码。
-- [MCP 工具规范](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)：使用官方 TypeScript SDK 的 stdio transport，初始化和工具调用由真实 SDK 客户端验收。
-- [Codex MCP 配置](https://developers.openai.com/codex/mcp/)：提供 command/args/env 的本地 stdio 配置。
-
-## 单一权威数据路径
-
-```text
-Electron / Tiptap ──authenticated localhost HTTP──┐
-                                                ├── Store ── project.json
-Codex ── MCP stdio ── authenticated HTTP ────────┘             ├─ styles.json 镜像
-                                                             ├─ assets/
-                                                             └─ original/source.docx
+```mermaid
+flowchart LR
+  W[WinUI 3 当前章编辑器] --> H[本地 HTTP 文档服务]
+  M[MCP stdio] --> H
+  H --> S[Store 文档操作与版本检查]
+  S --> R[Repository]
+  R --> D[(SQLite WAL)]
+  I[DOCX 导入] --> S
+  S --> E[DOCX 导出与独立模板]
 ```
 
-MCP 进程只做协议适配，不单独读写项目 JSON。Electron 同样不直接保存内容。服务端单个进程同步完成比较版本和提交，磁盘项目锁防止第二个服务写入。服务取得监听端口后才打开最近项目，避免同时启动时非监听进程占住项目锁。
+## 模型与顺序
 
-每次写入先复制当前状态，检查版本，修改并校验 ProseMirror schema 和 ID 唯一性；只有校验通过才写临时文件/fsync/原子重命名，最后更新内存。异常不会提交部分修改。styles.json 是可再生镜像，权威样式和正文一起保存在 project.json；镜像写入失败不破坏快照。
+- Document：身份、标题、文档提交版本、告警和独立导出模板。没有重复全文。
+- Section：身份、父章节、标题 Block ID、位置、子树版本。章节名称从标题块派生，层级从父子关系派生。
+- Block：身份、类型、语义 JSON、版本、唯一归属章节与位置。Paragraph/Heading/Table/Image 是主要类型；保留列表、引用、代码块等已有语义作为扩展。
+- 同一父节点下的 Block 与子 Section 共享位置轴。`entries` 按该位置轴读取；导出递归遍历这些条目，支持“父章块→子章→父章尾部块”。顶层章节同样有确定顺序。
+- 浮点间隔排序通常只改移动对象。间隔耗尽时只整理相关父节点的条目，不处理全文。
 
-UI 按块对比本地基线，仅提交变化块及其版本。MCP 修改另一块时，UI 自动合并未触碰的远端块；同块冲突拒绝提交，保留编辑内容和本地草稿。结构调整需要章节版本一致。跨章节恢复要求项目版本一致。UI 每 700 ms 轮询版本，不需要持续传输全文。
+## 写入热路径
 
-## 身份规则
+`Store.apply → BEGIN IMMEDIATE → 检查对象版本 → 处理受影响行 → 递增必要祖先版本 → 记录变化 → COMMIT → 通知`。
 
-1. 新块随机 UUID，与文字、编号和顺序无关。
-2. 修改、移动维持原 UUID；相同文字仍有不同 UUID。
-3. 复制新建 UUID；拆分保留原块身份，另一部分新建身份。
-4. 合并保留一方身份；撤销恢复同一历史中的原身份。
-5. Tiptap 的 ID 插件配合表格 ID 修复插件；服务器再次验证全项目唯一性。
-6. 顶层块保存 Markdown；富文本 JSON 为无损编辑表达，两者在提交中一起生成，禁止直接写不一致 Markdown/JSON。复杂表格使用 HTML + JSON 而非丢失合并信息。
+正文不存在原始 XML、来源样式、Markdown 镜像或全项目对象缓存。单块修改校验、序列化及读写仅涉及该块、归属关系和必要祖先；表格是一个 Block，修改单元格仍提交该表格，这是明确的第一阶段边界。
 
-## 本地边界
+数据库使用 WAL、`synchronous=FULL`、外键和事务；项目文件锁阻止第二个文档服务成为写入权威。提交失败整体回滚。进程中断后 SQLite 恢复未完成事务，异常退出的项目文件锁有约 30 秒失效窗口。
 
-无账户、云端数据库、Agent 聊天或审查系统。原生桌面只暴露文件夹选择和关闭通知的窄 IPC；渲染进程无 Node 权限、开启 context isolation 和 sandbox。HTTP 检查令牌及 Host/Origin，内容安全策略拒绝外部脚本。图片采用本地相对路径。
+模型规范化在 `model.js`；数据库连接、行读写、事务和完整性检查在 `repository.js`，Store 接受 Repository 工厂。领域模型不引用 SQLite 类型；目前 Store 部分查询仍使用 SQL 接口，替换成非 SQL 持久化时需实现等效查询适配。
+
+## 读取与同步
+
+项目打开返回文档信息和章节摘要；当前章节通过 `read_section` 加载，已知块 ID 直接 `read_block`。
+
+服务提供 SSE 和 `get_changes` 游标补齐。WinUI 使用轻量版本检查与增量拉取，空闲不序列化全文；指定当前 `section_id` 后其他章只返回摘要，跨节移动返回移出 ID。样式仅在样式变化时更新。
+
+写入结果不推进客户端的接收游标，避免跳过保存前其他客户端已提交的独立变更。当前脏块遇到外部更新、删除或移动会保留输入并进入冲突状态。
+
+## WinUI 编辑
+
+沿用原生 RichEditBox、输入法组合事件、剪贴板和表格模型。普通修改只更新受影响的根块控件，标题或结构变化才更新导航。
+
+撤销记录包含受影响块的前后内容及顺序变化；草稿保存脏块、基线版本和必要结构。新增块使用客户端临时 ID，提交后替换为服务端 UUID；恢复已删除块需要精确删除版本，恢复原 ID。
+
+大表格单元格平时使用 TextBlock，只有活动单元格建立编辑器。布局使用坐标占用索引。当前尚未实现按视口回收所有阅读单元格控件，极大表格的首次布局仍有成本。
+
+## 导入导出与兼容
+
+导入只保留内容语义、逻辑表格与图片；复杂内容显式告警。导出生成标准 DOCX，身份标签只携带稳定 ID 和组织信息，不以隐藏旧正文覆盖用户在 Word 中修改的文字。
+
+旧项目先备份并核验后启用 SQLite，旧文件停止参与正常编辑。旧 MCP 工具名和 `node`/Markdown 输入保留适配，返回值统一为局部变更包。Electron/Tiptap 和旧浏览器代码只留在本次回滚档案中。
+
+SQLite API 依据：[Node 24 官方文档](https://nodejs.org/download/release/latest-v24.x/docs/api/sqlite.html)。本机实际运行版本为 Node 24.19.0。

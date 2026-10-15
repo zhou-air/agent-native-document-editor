@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/native/">
+    <Project Path="native/AgentDocument.Client/AgentDocument.Client.csproj" />
+    <Project Path="native/AgentDocument.WinUI/AgentDocument.WinUI.csproj" />
+  </Folder>
+  <Folder Name="/checks/">
+    <Project Path="native/AgentDocument.ClientChecks/AgentDocument.ClientChecks.csproj" />
+    <Project Path="native/AgentDocument.EditorChecks/AgentDocument.EditorChecks.csproj" />
+  </Folder>
+</Solution>

@@ -1,80 +1,56 @@
-# 数据、MCP 和导出包格式
+# 数据契约 v2
 
-## 本地项目 v1
+## 项目目录
 
 ```text
-project/
-  project.json          唯一权威快照
-  styles.json           权威快照中 styles 的查看镜像
-  assets/<uuid>.png      所有图片资源
-  original/source.docx  导入的完整原件（可选）
-  exports/*.zip         MCP 生成的内容包
+document.sqlite            当前内容、组织、版本、历史与导出模板
+document.sqlite-wal/-shm    数据库运行中可能存在
+assets/                    本地图片
+original/source.docx        导入原件归档
+import-report.json          导入告警与身份重映射（导入项目）
+migration-report.json       旧项目迁移校验结果
+backups/v1-.../             自动备份的旧项目文件与资源
+project.json/styles.json    迁移后保留的旧文件，不再更新
+exports/                   MCP 导出的 DOCX / 兼容 ZIP
 ```
+
+## 持久化实体
+
+| 表 | 关键字段 | 用途 |
+|---|---|---|
+| documents | id, title, revision, styles, warnings, original, updated_at | 文档身份和提交版本；styles 为独立输出模板 |
+| sections | id, parent_id, heading_block_id, position, revision | 组织关系，无重复标题文本 |
+| blocks | id, section_id, position, type, content, revision | 单一归属的语义内容 |
+| assets | path, media_type, bytes | 资源登记 |
+| change_log | id, revision, operation, timestamp, data | 受影响行的前后值与局部通知信息 |
+| revision_heads | id, revision | 删除后的版本记忆，防止恢复时复用旧版本 |
+
+新对象用 UUID。旧有效且不冲突的 ID 原样保留；重映射写入报告。Section 标题块属于该节且位于首位。删除、移动标题请操作对应 Section。
+
+`content` 示例：
 
 ```json
-{
-  "formatVersion": 1,
-  "id": "document-uuid",
-  "title": "安全设施设计专篇",
-  "revision": 12,
-  "sections": [{
-    "id": "section-uuid", "title": "1.1 设计依据", "level": 2,
-    "parentId": "parent-section-uuid", "order": 0, "revision": 4,
-    "blocks": [{
-      "id": "block-uuid", "type": "paragraph", "sectionId": "section-uuid",
-      "order": 0, "revision": 3,
-      "markdown": "设计压力 **1.6 MPa**。",
-      "node": {"type":"paragraph","attrs":{"id":"block-uuid"},"content":[{"type":"text","text":"设计压力 "},{"type":"text","text":"1.6 MPa","marks":[{"type":"bold"}]},{"type":"text","text":"。"}]},
-      "source": {"styleId":"Normal","local":{},"runs":[],"xml":"原始段落 OOXML"}
-    }]
-  }],
-  "styles": {}, "warnings": [], "original": "original/source.docx"
-}
+{"type":"paragraph","content":[{"type":"text","text":"H"},{"type":"text","text":"2","marks":[{"type":"subscript"}]},{"type":"text","text":"O"}]}
 ```
 
-这里的 ID 示例是占位符，实际新建均为 UUID v4。前言使用 level=0。表格 node 包含 tableRow → tableCell → paragraph/image 等树形节点；表格单元格 attrs 的 `rowspan/colspan` 对应 `vMerge/gridSpan`。嵌套节点有 UUID，父子关系由 content 数组表达，数组顺序即子节点顺序。每个章节的顶层块额外保存 order 和 sectionId。
+允许加粗、斜体、下划线、删除线、上下标、换行、代码和安全链接。表格为 `table→tableRow→tableCell/tableHeader`，单元格的 `rowspan/colspan` 表达合并关系，可包含多段落和图片。图片引用 `assets/` 相对路径。字号、字体、颜色、段距、原 XML 不进入正文。
 
-## styles.json
+## 读写 API 的显示适配
 
-- `defaults`：Word docDefaults。
-- `semantic`：实际使用的正文字体/段落、各级标题、题注和表格通用规则。UI 中修改这些规则用于最终 Word 生成。
-- `definitions`：原始命名样式、basedOn、outlineLevel、字体/段落/表格信息及完整 XML。
-- `localOverrides`：以块或嵌套段落 UUID 为键，保存来源 styleId、局部 pPr、各 run 的 rPr、编号元数据、原始 XML。
-- `pages`：页面尺寸、方向、页边距及 sectPr XML。
-- `units`：字体和段距为 pt；页面值为 Word twips。行距保留原始 `line` 和 `lineRule`，auto 为 240 分之一行；缩进保留 OOXML 原始单位。
+读取 Block 返回 `id/type/revision/sectionId/order/content`；为既有 WinUI/MCP 保留派生的 `node` 和 `markdown`。这些派生字段没有在数据库中重复存储。`node.attrs.id` 等于 Block ID，Heading 的 level 从 Section 层级计算。
 
-`null` 表示此层未设置，`false` 表示显式取消，如关闭加粗；不能混为一谈。来源局部覆盖记录用于还原导入来源，编辑后的内容以 node/markdown 为准，不应让旧 XML 覆盖新文字。预设只包含 semantic/pages，不应携带旧文档的局部覆盖。
+章节摘要有 `id/parentId/headingBlockId/title/level/order/revision/blockCount`，按需章节读取增加 `blocks/blockIds/entries`。`entries` 才是 Block 与子章节混合顺序的权威；不要自行按标题编号排序。
 
-## MCP 工具
+写入返回：
 
-| 工具 | 定位 / 版本 | 内容 |
-|---|---|---|
-| project_info | 无 | 项目名称、ID、路径、项目版本与警告 |
-| open_project | path | 打开已有项目，自动启动服务 |
-| list_sections | 无 | 章节、层级、父章节、章节版本 |
-| read_section | section_id | 章节及全部直属块 |
-| write_section | section_id + 章节 expected_revision | nodes（保留 ID）或 Markdown（新建 ID） |
-| list_blocks | section_id | 直属块概览、Markdown、块版本 |
-| read_block | block_id | 完整节点和来源格式 |
-| update_block | block_id + 块 expected_revision | 单一顶层 node 或 Markdown，保留目标块 ID |
-| insert_block | section_id + 章节 expected_revision | after_id 可选，缺省追加；分配新 ID |
-| delete_block | block_id + 块 expected_revision | 删除指定直属块 |
-| replace_text | block_id + 块 expected_revision | old_text / new_text，必须唯一字面匹配 |
-| move_block | block_id + 块 expected_revision | section_id + target_revision；before_id 可选 |
-| export_project | section_ids 可选 | 返回项目 exports/ 下生成 ZIP 的绝对路径 |
-
-错误通过 MCP `isError` 和文本 JSON 返回，版本冲突 code=409。MCP 写操作返回已提交后的项目快照。一次调用是一项原子操作，不保证多个工具调用组成跨调用事务。禁止忽略冲突后盲目用新版本重试旧内容。
-
-## 导出 ZIP
-
-```text
- document.md          所选章节的完整 Markdown
- structure.json       同一项目快照，sections 按导出范围筛选
- styles.json          语义规则、定义、覆盖与页面设置
- export-rules.md      不得概括/修改技术数据、保留所有内容的强制生成规则
- word-prompt.txt      简短 Word 生成提示词
- assets/              项目资源（相对路径，包含未使用资源）
- original/source.docx 原始 Word 参考（如有）
+```json
+{"changeId":"uuid","documentRevision":12,"revision":12,"changedBlocks":[],"changedSections":[],"deletedBlockIds":[],"deletedSectionIds":[],"deletedBlockRevisions":{},"idMap":{},"movedBlocks":[]}
 ```
 
-简单表格输出管道表格；有 rowspan/colspan 的表格保持 HTML，structure.json 同时保留无损节点树。导出可以移到另一台机器使用，不依赖原目录、联网资源或原始 Word 所在的外部路径。选节导出不裁剪原始 Word 或全局样式；不要把它作为涉密材料脱敏工具。
+块更新校验块版本，章节结构校验章节版本，新建章节校验文档版本。章节版本表示其内容/子树发生过变化，因此对子孙修改后，旧父章节删除请求会冲突。多块保存是一项事务；其中一个版本冲突就全部回滚。
+
+`save_blocks` 普通保存只带 `changed:[{block_id,expected_revision,node}]`。结构变化另带 `order/base_ids/section_revision/created/deleted`。新增对象由服务生成 ID 并返回 idMap；撤销已提交删除需 `restore_id/expected_deleted_revision`，只允许恢复匹配的历史块。
+
+`get_changes` 按文档 revision 分页，使用最后已接收版本继续；历史保留局部前后值，不包含整篇快照。可指定 `section_id` 限定正文负载，其他章只传摘要及移动/删除身份。
+
+输出模板含 `semantic.body/headings/table`、`pages[0].size/margins`。字体大小/段前后为 pt，页面与缩进为 twips，自动行距以 240 表示一倍、360 表示 1.5 倍。来源样式 ID、XML 和局部覆盖不会迁入模板。

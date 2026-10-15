@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\AgentDocument.WinUI\Controls\DocumentStyleRules.cs" Link="DocumentStyleRules.cs" />
+    <Compile Include="..\AgentDocument.WinUI\Controls\BlockEditDelta.cs" Link="BlockEditDelta.cs" />
+    <Compile Include="..\AgentDocument.WinUI\Controls\DocumentNodes.cs" Link="DocumentNodes.cs" />
+    <Compile Include="..\AgentDocument.WinUI\Controls\NativeTableModel.cs" Link="NativeTableModel.cs" />
+    <Compile Include="..\AgentDocument.WinUI\Controls\DocumentClipboard.cs" Link="DocumentClipboard.cs" />
+  </ItemGroup>
+</Project>

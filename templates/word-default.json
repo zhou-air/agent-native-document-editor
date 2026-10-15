@@ -1,0 +1,150 @@
+{
+  "formatVersion": 2,
+  "semantic": {
+    "body": {
+      "font": {
+        "eastAsia": "宋体",
+        "latin": "Calibri",
+        "sizePt": 12
+      },
+      "paragraph": {
+        "afterPt": 6,
+        "line": 360
+      }
+    },
+    "headings": {
+      "1": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 20,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "2": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 16,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "3": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "4": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "5": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "6": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "7": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "8": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      },
+      "9": {
+        "font": {
+          "eastAsia": "黑体",
+          "latin": "Calibri",
+          "sizePt": 14,
+          "bold": true
+        },
+        "paragraph": {
+          "beforePt": 12,
+          "afterPt": 6
+        }
+      }
+    },
+    "table": {
+      "font": {
+        "eastAsia": "宋体",
+        "latin": "Calibri",
+        "sizePt": 10.5
+      },
+      "paragraph": {
+        "afterPt": 0
+      }
+    }
+  },
+  "pages": [
+    {
+      "size": {
+        "w": 11906,
+        "h": 16838
+      },
+      "margins": {
+        "top": 1417,
+        "bottom": 1134,
+        "left": 1587,
+        "right": 1247
+      }
+    }
+  ]
+}

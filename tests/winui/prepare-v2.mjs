@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {randomUUID} from 'node:crypto';
+import {Store} from '../../src/store.js';
+const [projectDir,seedPath]=process.argv.slice(2);
+const s=new Store();const manifest=s.create(path.resolve(projectDir),'原生大表增量验收');
+const section=s.readSection(manifest.sections[0].id);
+const paragraphId=section.blocks[1].id;
+s.apply('update_block',{block_id:paragraphId,expected_revision:section.blocks[1].revision,node:{type:'paragraph',content:[{type:'text',text:'H'},{type:'text',text:'2',marks:[{type:'subscript'}]},{type:'text',text:'O + m'},{type:'text',text:'2',marks:[{type:'superscript'}]},{type:'text',text:' link',marks:[{type:'link',attrs:{href:'https://example.com'}}]}]}});
+const p=text=>({type:'paragraph',attrs:{id:randomUUID()},content:[{type:'text',text}]});
+const rows=300,cols=8;
+const node={type:'table',attrs:{id:randomUUID()},content:Array.from({length:rows},(_,r)=>({type:'tableRow',attrs:{id:randomUUID()},content:Array.from({length:cols},(_,c)=>({type:r===0?'tableHeader':'tableCell',attrs:{id:randomUUID(),rowspan:1,colspan:1},content:[p(`R${r+1} C${c+1}`)]}))}))};
+const result=s.apply('create_block',{section_id:section.id,expected_revision:s.readSection(section.id).revision,node});
+const table=result.block;
+fs.mkdirSync(path.dirname(seedPath),{recursive:true});
+fs.writeFileSync(seedPath,JSON.stringify({sectionId:section.id,sectionTitle:section.title,baseTextEditors:2,semanticProbe:true,expectedText:"H2O + m2 link",paragraphId,tableId:table.id,cellId:table.node.content[0].content[0].attrs.id,cellParagraphId:table.node.content[0].content[0].content[0].attrs.id,cellCount:rows*cols},null,2));s.close();

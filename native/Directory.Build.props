@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup><DefaultItemExcludes>$(DefaultItemExcludes);**/bin/**;**/obj/**</DefaultItemExcludes></PropertyGroup>
+  <PropertyGroup Condition="'$(AgentDocumentBuildRoot)' != ''">
+    <BaseIntermediateOutputPath>$(AgentDocumentBuildRoot)\$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+    <BaseOutputPath>$(AgentDocumentBuildRoot)\$(MSBuildProjectName)\bin\</BaseOutputPath>
+  </PropertyGroup>
+</Project>

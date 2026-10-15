@@ -1,30 +1,25 @@
 {
   "name": "agent-document",
   "productName": "Agent Document",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Local structured technical document workbench",
   "type": "module",
-  "main": "src/desktop.cjs",
+  "main": "src/service.js",
   "author": "Agent Document contributors",
   "license": "MIT",
   "scripts": {
-    "build": "vite build",
-    "start": "electron .",
+    "build": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/publish-winui.ps1",
+    "start": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/launch-winui.ps1",
     "serve": "node src/service.js",
     "mcp": "node src/mcp.js",
-    "test": "node --test tests/core.test.js",
-    "test:ui": "node tests/ui.test.js",
-    "package:win": "npm run build && node scripts/package.mjs win32",
-    "package:linux": "npm run build && node scripts/package.mjs linux"
+    "test": "node --test tests/store-v2.test.js tests/semantic-docx.test.js tests/service-v2.test.js tests/migration-content.test.js tests/store-review.test.js tests/project-catalog.test.js",
+    "test:native": "dotnet run --project native/AgentDocument.ClientChecks && dotnet run --project native/AgentDocument.EditorChecks",
+    "benchmark": "node scripts/benchmark-v2.mjs",
+    "migrate": "node scripts/migrate-project.mjs",
+    "package:win": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/publish-winui.ps1"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
-    "@tiptap/core": "^3.31.4",
-    "@tiptap/extension-image": "^3.31.4",
-    "@tiptap/extension-table": "^3.31.4",
-    "@tiptap/extension-text-align": "^3.31.4",
-    "@tiptap/extension-unique-id": "^3.31.4",
-    "@tiptap/starter-kit": "^3.31.4",
     "@xmldom/xmldom": "^0.9.12",
     "jszip": "^3.10.2",
     "linkedom": "^0.18.13",
@@ -35,10 +30,6 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@electron/packager": "^20.3.0",
-    "@playwright/test": "^1.64.0",
-    "electron": "^38.8.6",
-    "prettier": "^3.9.10",
-    "vite": "^8.3.4"
+    "prettier": "^3.9.10"
   }
 }

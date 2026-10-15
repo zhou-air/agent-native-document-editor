@@ -1,0 +1,125 @@
+<Window x:Class="AgentDocument.WinUI.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Grid x:Name="Root" RequestedTheme="Light" Background="#F3F3F3" AutomationProperties.AutomationId="MainWindowRoot">
+  <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+  <Grid Padding="18,0" ColumnSpacing="14" BorderBrush="#D8E4F3" BorderThickness="0,0,0,1" Background="#FFFFFF">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center"><FontIcon Glyph="&#xE8A5;" Foreground="#185ABD" FontSize="22"/><TextBlock Text="文档工作台" FontSize="17" FontWeight="SemiBold"/></StackPanel>
+   <TextBlock x:Name="ProjectTitle" Grid.Column="1" Text="项目首页" VerticalAlignment="Center" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" AutomationProperties.AutomationId="ProjectTitle"/>
+   <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+    <Button Content="新建" AutomationProperties.AutomationId="NewProjectButton" Click="NewProject_Click" Padding="12,5"/>
+    <Button Content="打开" AutomationProperties.AutomationId="OpenProjectButton" Click="OpenProject_Click" Padding="12,5"/>
+    <Button Content="导入 Word" AutomationProperties.AutomationId="ImportButton" Click="Import_Click" Padding="12,5"/>
+    <Button x:Name="SaveProjectButton" Content="保存" AutomationProperties.AutomationId="SaveButton" Click="Save_Click" Padding="12,5" IsEnabled="False"/>
+    <Button x:Name="ExportProjectButton" Content="导出文档" AutomationProperties.AutomationId="ExportButton" Click="Export_Click" Style="{StaticResource AccentButtonStyle}" Padding="12,5" IsEnabled="False"/>
+   </StackPanel>
+  </Grid>
+  <Grid x:Name="RibbonHost" Grid.Row="1" Background="#FAFAFA" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1" Visibility="Collapsed">
+   <Grid.RowDefinitions><RowDefinition Height="36"/><RowDefinition Height="102"/></Grid.RowDefinitions>
+   <StackPanel Orientation="Horizontal" Margin="12,2" Spacing="4">
+    <Button Content="项目首页" Click="OpenProject_Click" Padding="12,4" AutomationProperties.AutomationId="ProjectHomeButton"/>
+    <ToggleButton x:Name="HomeTab" Content="开始" IsChecked="True" Click="RibbonTab_Click" Tag="home" Padding="18,4" AutomationProperties.AutomationId="HomeTab"/>
+    <ToggleButton x:Name="InsertTab" Content="插入" Click="RibbonTab_Click" Tag="insert" Padding="18,4" AutomationProperties.AutomationId="InsertTab"/>
+    <ToggleButton x:Name="LayoutTab" Content="布局与样式" Click="RibbonTab_Click" Tag="layout" Padding="18,4" AutomationProperties.AutomationId="LayoutTab"/>
+    <ToggleButton x:Name="ReviewTab" Content="内容与审阅" Click="RibbonTab_Click" Tag="review" Padding="18,4" AutomationProperties.AutomationId="ReviewTab"/>
+   </StackPanel>
+   <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Enabled" VerticalScrollMode="Disabled">
+    <Grid Margin="12,3,12,6">
+     <StackPanel x:Name="HomeRibbon" Orientation="Horizontal" Spacing="12"/>
+     <StackPanel x:Name="InsertRibbon" Orientation="Horizontal" Spacing="12" Visibility="Collapsed"/>
+     <StackPanel x:Name="LayoutRibbon" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
+      <ContentControl x:Name="StyleInspector" IsEnabled="False"><StackPanel Orientation="Horizontal" Spacing="16">
+       <StackPanel Spacing="5" Width="138">
+        <TextBlock Text="编辑全篇样式" FontSize="11" Foreground="#605E5C"/>
+        <ComboBox x:Name="SemanticStyle" HorizontalAlignment="Stretch" SelectionChanged="SemanticStyle_SelectionChanged" AutomationProperties.AutomationId="SemanticStyle"/>
+        <Button Content="应用样式" HorizontalAlignment="Stretch" Style="{StaticResource AccentButtonStyle}" Click="SaveStyles_Click" AutomationProperties.AutomationId="SaveStylesButton"/>
+       </StackPanel>
+       <StackPanel Spacing="5">
+        <TextBlock Text="字体" FontSize="11" Foreground="#605E5C"/>
+        <StackPanel Orientation="Horizontal" Spacing="5">
+         <TextBox x:Name="StyleFont" Width="135" PlaceholderText="中文字体" TextChanged="CommonStyle_Changed" AutomationProperties.AutomationId="StyleFont" AutomationProperties.Name="中文字体"/>
+         <TextBox x:Name="StyleLatinFont" Width="110" PlaceholderText="西文字体" TextChanged="CommonStyle_Changed" AutomationProperties.AutomationId="StyleLatinFont" AutomationProperties.Name="西文字体"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+         <TextBlock Text="字号（磅）" VerticalAlignment="Center" FontSize="12"/>
+         <NumberBox x:Name="StyleSize" Width="90" Minimum="6" Maximum="96" ValueChanged="StyleSize_ValueChanged" SpinButtonPlacementMode="Compact" AutomationProperties.AutomationId="StyleSize"/>
+         <ToggleButton x:Name="StyleBold" Content="加粗" Click="CommonStyle_Click" AutomationProperties.AutomationId="StyleBold"/>
+        </StackPanel>
+       </StackPanel>
+       <StackPanel Spacing="5">
+        <TextBlock Text="段落" FontSize="11" Foreground="#605E5C"/>
+        <StackPanel Orientation="Horizontal" Spacing="6">
+         <TextBlock Text="对齐" VerticalAlignment="Center" FontSize="12"/>
+         <ComboBox x:Name="StyleAlignment" Width="95" SelectionChanged="CommonStyle_SelectionChanged" AutomationProperties.AutomationId="StyleAlignment"><ComboBoxItem Content="左对齐" Tag="left"/><ComboBoxItem Content="居中" Tag="center"/><ComboBoxItem Content="右对齐" Tag="right"/><ComboBoxItem Content="两端对齐" Tag="both"/></ComboBox>
+         <TextBlock Text="行距" VerticalAlignment="Center" FontSize="12"/>
+         <ComboBox x:Name="StyleLine" Width="100" PlaceholderText="选择行距" SelectionChanged="CommonStyle_SelectionChanged" AutomationProperties.AutomationId="StyleLine"><ComboBoxItem Content="单倍" Tag="240"/><ComboBoxItem Content="1.5 倍" Tag="360"/><ComboBoxItem Content="2 倍" Tag="480"/></ComboBox>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="5">
+         <TextBlock Text="段前" VerticalAlignment="Center" FontSize="12"/><NumberBox x:Name="StyleBefore" Width="68" Minimum="0" Maximum="200" ValueChanged="StyleSize_ValueChanged" AutomationProperties.AutomationId="StyleBefore" AutomationProperties.Name="段前（磅）"/>
+         <TextBlock Text="段后" VerticalAlignment="Center" FontSize="12"/><NumberBox x:Name="StyleAfter" Width="68" Minimum="0" Maximum="200" ValueChanged="StyleSize_ValueChanged" AutomationProperties.AutomationId="StyleAfter" AutomationProperties.Name="段后（磅）"/>
+         <TextBlock Text="首行（磅）" VerticalAlignment="Center" FontSize="12"/><NumberBox x:Name="StyleIndent" Width="68" Minimum="0" Maximum="200" ValueChanged="StyleSize_ValueChanged" AutomationProperties.AutomationId="StyleIndent"/>
+        </StackPanel>
+       </StackPanel>
+       <Button x:Name="DetailedStylesButton" Content="详细模板" VerticalAlignment="Center" AutomationProperties.AutomationId="DetailedStylesButton">
+        <Button.Flyout><Flyout x:Name="AdvancedStylesFlyout"><StackPanel Width="620" Spacing="8"><TextBlock Text="详细文档样式与页面设置" FontSize="17" FontWeight="SemiBold"/><Expander x:Name="AdvancedStyle" Header="详细模板" IsExpanded="True" HorizontalAlignment="Stretch"><StackPanel Spacing="8"><ComboBox x:Name="StyleScope" HorizontalAlignment="Stretch" SelectionChanged="StyleScope_SelectionChanged" AutomationProperties.AutomationId="StyleScope"/><TextBox x:Name="StylesEditor" AcceptsReturn="True" TextWrapping="Wrap" Height="280" FontFamily="Consolas" FontSize="11" TextChanged="StylesEditor_TextChanged" AutomationProperties.AutomationId="StylesEditor"/><Button Content="保存详细样式" Click="SaveAdvancedStyles_Click" AutomationProperties.AutomationId="SaveAdvancedStylesButton"/></StackPanel></Expander></StackPanel></Flyout></Button.Flyout>
+       </Button>
+      </StackPanel></ContentControl>
+     </StackPanel>
+     <StackPanel x:Name="ReviewRibbon" Orientation="Horizontal" Spacing="12" Visibility="Collapsed"/>
+    </Grid>
+   </ScrollViewer>
+  </Grid>
+  <InfoBar x:Name="Notice" Grid.Row="2" IsOpen="False" IsClosable="True" Margin="10,4"/>
+  <Grid Grid.Row="3" x:Name="WorkspaceGrid" Visibility="Collapsed">
+   <Grid.ColumnDefinitions><ColumnDefinition x:Name="NavColumn" Width="260" MinWidth="180"/><ColumnDefinition Width="*"/><ColumnDefinition x:Name="InspectorColumn" Width="300"/></Grid.ColumnDefinitions>
+   <Grid Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="0,0,1,0" Padding="12" RowSpacing="10">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <Grid><TextBlock Text="导航" FontSize="17" FontWeight="SemiBold"/><Button Content="添加章节" HorizontalAlignment="Right" Click="AddSection_Click" Padding="8,3" AutomationProperties.AutomationId="AddSectionButton"/></Grid>
+    <TextBox x:Name="ChapterSearch" Grid.Row="1" PlaceholderText="搜索章节" TextChanged="ChapterSearch_TextChanged" AutomationProperties.AutomationId="ChapterSearch"/>
+    <TreeView x:Name="ChapterTree" Grid.Row="2" SelectionMode="Single" SelectionChanged="ChapterTree_SelectionChanged" AutomationProperties.AutomationId="ChapterTree" AutomationProperties.Name="章节导航"><TreeView.ItemTemplate><DataTemplate><TreeViewItem Content="{Binding Content}" IsExpanded="{Binding IsExpanded, Mode=TwoWay}"/></DataTemplate></TreeView.ItemTemplate></TreeView>
+    <TextBlock x:Name="ProjectPath" Grid.Row="3" Foreground="#605E5C" FontSize="11" TextWrapping="Wrap" MaxLines="3"/>
+   </Grid>
+   <Grid Grid.Column="1" RowSpacing="0">
+    <Grid.RowDefinitions><RowDefinition Height="40"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid Padding="18,8"><TextBlock x:Name="SectionTitle" Text="文档" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/><Button Content="阅读空间" HorizontalAlignment="Right" Click="ReadingSpace_Click" Padding="8,2" FontSize="12"/></Grid>
+    <ScrollViewer Grid.Row="1" x:Name="PaperScroll" AutomationProperties.AutomationId="PaperScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="24,8,24,24">
+     <Border x:Name="Paper" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1" Padding="48,36" MinWidth="580" MaxWidth="940" HorizontalAlignment="Center" MinHeight="700">
+      <Grid x:Name="EditorHost"><StackPanel x:Name="EmptyState" Spacing="12" Margin="0,40"><TextBlock Text="开始编辑工程文档" FontSize="24" FontWeight="SemiBold"/><TextBlock Text="打开已有项目，或导入 Word。章节、正文、表格和图片保存在本地。" TextWrapping="Wrap" Foreground="#605E5C"/></StackPanel></Grid>
+     </Border>
+    </ScrollViewer>
+   </Grid>
+   <Grid Grid.Column="2" Background="#FFFFFF" BorderBrush="#E1DFDD" BorderThickness="1,0,0,0" Padding="14" RowSpacing="10">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <TextBlock Text="内容块" FontSize="17" FontWeight="SemiBold"/>
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+     <Grid>
+      <StackPanel x:Name="BlockInspector" Spacing="10">
+       <TextBlock x:Name="BlockType" Text="选择一个内容块" FontSize="16" FontWeight="SemiBold"/>
+       <TextBlock x:Name="BlockSummary" TextWrapping="Wrap" Foreground="#605E5C"/>
+       <Expander Header="定位信息"><StackPanel Spacing="4"><TextBlock Text="块标识" FontSize="11" Foreground="#605E5C"/><TextBox x:Name="BlockId" IsReadOnly="True" FontSize="11"/><TextBlock x:Name="BlockRevision" FontSize="11" Foreground="#605E5C"/></StackPanel></Expander>
+       <StackPanel Orientation="Horizontal" Spacing="6"><Button Content="插入段落" AutomationProperties.AutomationId="InsertBlockButton" Click="InsertBlock_Click"/><Button x:Name="CopySelectionButton" Content="复制" AutomationProperties.AutomationId="CopyBlockButton" Click="CopyBlock_Click"/><Button x:Name="PasteSelectionButton" Content="粘贴" AutomationProperties.AutomationId="PasteBlockButton" Click="PasteBlock_Click"/></StackPanel>
+       <StackPanel Orientation="Horizontal" Spacing="6"><Button Content="上移" AutomationProperties.AutomationId="UpBlockButton" Click="UpBlock_Click"/><Button Content="下移" AutomationProperties.AutomationId="DownBlockButton" Click="DownBlock_Click"/><Button Content="删除" AutomationProperties.AutomationId="DeleteBlockButton" Click="DeleteBlock_Click"/></StackPanel>
+       <TextBlock Text="移动到章节" FontSize="12"/><ComboBox x:Name="MoveTarget" HorizontalAlignment="Stretch" AutomationProperties.AutomationId="MoveTarget"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Title}" AutomationProperties.AutomationId="{Binding AutomationId}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox><Button Content="移动所选内容块" AutomationProperties.AutomationId="MoveBlockButton" Click="MoveBlock_Click"/>
+       <TextBlock Text="本节内容" FontWeight="SemiBold" Margin="0,10,0,0"/>
+       <ListView x:Name="BlockList" SelectionMode="Extended" SelectionChanged="BlockList_SelectionChanged" MaxHeight="300" DisplayMemberPath="Title" AutomationProperties.AutomationId="BlockList"/>
+       <Expander Header="导入提示"><TextBlock x:Name="Warnings" TextWrapping="Wrap" FontSize="12"/></Expander>
+      </StackPanel>
+     </Grid>
+    </ScrollViewer>
+   </Grid>
+  </Grid>
+  <Grid x:Name="ProjectHome" Grid.Row="3" Background="#FFFFFF" Padding="40,30" RowSpacing="22" AutomationProperties.AutomationId="ProjectHome">
+   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+   <Grid><StackPanel Spacing="8"><TextBlock Text="最近项目" FontSize="28" FontWeight="SemiBold"/><TextBlock Text="打开已有项目，或导入 Word 开始编辑。" Foreground="#605E5C"/></StackPanel><Button x:Name="ContinueProjectButton" Content="返回当前文档" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" Click="ContinueProject_Click" AutomationProperties.AutomationId="ContinueProjectButton"/></Grid>
+   <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10"><Button Content="新建项目" Click="NewProject_Click" AutomationProperties.AutomationId="HomeNewButton"/><Button Content="导入 Word" Click="Import_Click" Style="{StaticResource AccentButtonStyle}" AutomationProperties.AutomationId="HomeImportButton"/><Button Content="浏览已有项目" Click="BrowseProject_Click" AutomationProperties.AutomationId="BrowseProjectButton"/><Button Content="刷新列表" Click="RefreshProjects_Click" AutomationProperties.AutomationId="RefreshProjectsButton"/></StackPanel>
+   <Grid Grid.Row="2" Padding="16,8" BorderBrush="#E1DFDD" BorderThickness="0,0,0,1"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="160"/></Grid.ColumnDefinitions><TextBlock Text="项目名称" Foreground="#605E5C"/><TextBlock Grid.Column="1" Text="文件位置" Foreground="#605E5C"/><TextBlock Grid.Column="2" Text="最近修改" Foreground="#605E5C"/></Grid>
+   <Grid Grid.Row="3"><ListView x:Name="RecentProjects" SelectionMode="None" IsItemClickEnabled="True" ItemClick="RecentProjects_ItemClick" HorizontalContentAlignment="Stretch" AutomationProperties.AutomationId="RecentProjects"><ListView.ItemTemplate><DataTemplate><Grid Padding="12,16" ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/><ColumnDefinition Width="160"/></Grid.ColumnDefinitions><StackPanel Orientation="Horizontal" Spacing="12"><FontIcon Glyph="&#xE8A5;" Foreground="#185ABD" FontSize="24"/><TextBlock Text="{Binding Title}" FontSize="16" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></StackPanel><TextBlock Grid.Column="1" Text="{Binding Path}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="#605E5C" ToolTipService.ToolTip="{Binding Path}"/><TextBlock Grid.Column="2" Text="{Binding Modified}" VerticalAlignment="Center" Foreground="#605E5C"/></Grid></DataTemplate></ListView.ItemTemplate></ListView><TextBlock x:Name="ProjectsEmpty" Text="还没有项目。点击“导入 Word”即可自动创建。" Margin="16,24" Foreground="#605E5C" Visibility="Collapsed"/></Grid>
+  </Grid>
+  <Grid Grid.Row="4" Background="#F8F8F8" BorderBrush="#E1DFDD" BorderThickness="0,1,0,0" Padding="14,5">
+   <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <TextBlock x:Name="StatusText" Text="正在连接本地项目…" FontSize="12" AutomationProperties.AutomationId="SaveStatus"/>
+   <TextBlock x:Name="Statistics" Grid.Column="1" Text="内容仅保存在本地" FontSize="12" Foreground="#605E5C"/>
+  </Grid>
+ </Grid>
+</Window>

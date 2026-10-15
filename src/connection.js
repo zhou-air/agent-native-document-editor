@@ -19,8 +19,20 @@ export async function connect() {
         headers: { Authorization: "Bearer " + c.token },
         signal: AbortSignal.timeout(600),
       });
-      if (r.ok) return c;
-    } catch {}
+      if (r.ok) {
+        const health = await r.json();
+        if (health.apiVersion !== 2) {
+          const error = new Error(
+            "当前运行的是旧版文档服务，请保存并关闭旧程序后启动新版 WinUI。未向旧服务提交修改。",
+          );
+          error.code = "EAPI_VERSION";
+          throw error;
+        }
+        return c;
+      }
+    } catch (error) {
+      if (error.code === "EAPI_VERSION") throw error;
+    }
     if (i === 0) {
       fs.mkdirSync(runtime, { recursive: true });
       const log = fs.openSync(path.join(runtime, "service.log"), "a");
@@ -29,8 +41,8 @@ export async function connect() {
         [fileURLToPath(new URL("./service.js", import.meta.url))],
         {
           detached: true,
+          windowsHide: true,
           stdio: ["ignore", log, log],
-          env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" },
         },
       );
       proc.unref();
@@ -40,20 +52,23 @@ export async function connect() {
   }
   throw Error("无法启动本地服务，请查看 " + path.join(runtime, "service.log"));
 }
-export async function call(c, name, args) {
-  const r = await fetch(c.url + "/api/tool", {
+export async function request(c, route, data) {
+  const r = await fetch(c.url + route, {
     method: "POST",
     headers: {
       Authorization: "Bearer " + c.token,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, args }),
+    body: JSON.stringify(data),
   });
-  const data = await r.json();
+  const result = await r.json();
   if (!r.ok) {
-    const e = new Error(data.error);
+    const e = new Error(result.error);
     e.code = r.status;
     throw e;
   }
-  return data;
+  return result;
+}
+export async function call(c, name, args) {
+  return request(c, "/api/tool", { name, args });
 }

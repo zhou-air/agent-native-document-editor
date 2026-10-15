@@ -1,4 +1,6 @@
 node_modules/
+/projects/
+/artifacts/
 release/
 .runtime*/
 *.log
@@ -8,3 +10,18 @@ sample-project/
 .env
 .env.*
 *.pem
+native/**/bin/
+native/**/obj/
+native/**/artifacts/
+artifacts/winui/
+artifacts/native-v2/
+artifacts/**/runtime/
+artifacts/**/connection.json
+artifacts/native-v2-ui/**/project/
+artifacts/refactor-20261014/legacy-baseline/
+artifacts/refactor-20261014/source-before-*.zip
+artifacts/refactor-20261014/retired-v1/
+artifacts/refactor-20261014/large-project-v2/
+artifacts/refactor-20261014/*.docx
+*.sqlite-wal
+*.sqlite-shm

@@ -1,8 +1,8 @@
-# 替换以下两处绝对路径。解压后的 resources/app.asar 不需要手动解包。
+# 原生 WinUI 3 版本。替换仓库根目录路径；桌面与 MCP 使用同一运行数据目录。
 [mcp_servers.agent_document]
-command = 'D:\Apps\AgentDocument\AgentDocument.exe'
-args = ['D:\Apps\AgentDocument\resources\app.asar\src\mcp.js']
-env = { ELECTRON_RUN_AS_NODE = "1" }
+command = 'C:\Users\34084\Desktop\agentdocument\agent-native-document-editor\release\AgentDocument-WinUI-x64\backend\node.exe'
+args = ['C:\Users\34084\Desktop\agentdocument\agent-native-document-editor\release\AgentDocument-WinUI-x64\backend\src\mcp.js']
+env = { AGENTDOC_RUNTIME = 'C:\Users\34084\Desktop\agentdocument\agent-native-document-editor\.runtime-local', AGENTDOC_PORT = "47831" }
 startup_timeout_sec = 30
 tool_timeout_sec = 60
 

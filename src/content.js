@@ -38,6 +38,8 @@ export function html(n) {
           strike: "s",
           underline: "u",
           code: "code",
+          superscript: "sup",
+          subscript: "sub",
         }[m.type]
       ) {
         const tag = {
@@ -46,9 +48,14 @@ export function html(n) {
           strike: "s",
           underline: "u",
           code: "code",
+          superscript: "sup",
+          subscript: "sub",
         }[m.type];
         t = `<${tag}>${t}</${tag}>`;
-      } else if (m.type === "link" && /^https?:\/\//i.test(m.attrs?.href || ""))
+      } else if (
+        m.type === "link" &&
+        /^(https?:\/\/|mailto:|#)/i.test(m.attrs?.href || "")
+      )
         t = `<a href="${escape(m.attrs.href)}">${t}</a>`;
     return t;
   }
@@ -80,6 +87,11 @@ const td = new TurndownService({
   codeBlockStyle: "fenced",
 });
 td.use(gfm);
+td.addRule("semanticScripts", {
+  filter: ["sup", "sub"],
+  replacement: (content, n) =>
+    `<${n.nodeName.toLowerCase()}>${content}</${n.nodeName.toLowerCase()}>`,
+});
 td.addRule("complexTable", {
   filter: (n) =>
     n.nodeName === "TABLE" &&
@@ -116,11 +128,13 @@ export function fromMarkdown(md) {
       DEL: "strike",
       U: "underline",
       CODE: "code",
+      SUP: "superscript",
+      SUB: "subscript",
     }[el.tagName];
     if (mark) m.push({ type: mark });
     if (
       el.tagName === "A" &&
-      /^https?:\/\//.test(el.getAttribute("href") || "")
+      /^(https?:\/\/|mailto:|#)/i.test(el.getAttribute("href") || "")
     )
       m.push({ type: "link", attrs: { href: el.getAttribute("href") } });
     if (el.tagName === "BR") return [{ type: "hardBreak" }];
@@ -182,7 +196,6 @@ export function block(node, old) {
     type: node.type,
     markdown: markdown(node),
     node,
-    ...(old?.source ? { source: old.source } : {}),
   };
 }
 export function replaceText(node, oldText, newText) {
